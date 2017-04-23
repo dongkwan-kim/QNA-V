@@ -2,7 +2,9 @@ import numpy as np
 import cv2
 import os
 
+
 class KNN_FM:
+
     def __init__(self, f1, kp1, f2, kp2, good):
         self.f1 = f1
         self.f2 = f2
@@ -18,6 +20,25 @@ class KNN_FM:
                 self.f2, self.kp2, self.good, None, flags=2)
         save_img(img_path, img_name +"_"+ str(self.score()) + ".png", i)
 
+    def set_info(self, video_1, idx_1, video_2, idx_2):
+        self.idx_1 = idx_1
+        self.idx_2 = idx_2
+        self.video_1 = video_1
+        self.video_2 = video_2
+
+    def p(self, s):
+        s = s.split("/")
+        s = "-".join(s[-2:])
+        s = s.replace("/", "-")
+        s = s.replace(".mp4", "")
+        return s
+
+    def get_title(self):
+        return "_".join([
+            self.p(self.video_1),
+            self.p(self.video_2),
+        ])
+
 
 def save_img(img_path, img_name, image):
     """
@@ -25,8 +46,22 @@ def save_img(img_path, img_name, image):
     """
     cv2.imwrite(os.path.join(img_path, img_name), image)
 
+def save_cmp_log(cmp_iter):
+    i = 0
+    for c in cmp_iter:
+        if i == 0:
+            o = open("result/"+c.get_title() + ".txt", "w")
+        o.write("\t".join([
+            str(c.idx_1),
+            str(c.idx_2),
+            str(c.score()),
+        ]) + "\n")
+        i += 1
+
+    o.close()
+
+
 def compare_video(video_1, video_2, cmp_func):
-    o = open("output.txt", "w")
     idx_1, idx_2 = 0, 0
 
     cap_1 = cv2.VideoCapture(video_1)
@@ -42,18 +77,15 @@ def compare_video(video_1, video_2, cmp_func):
 
                 if ret_2:
                     knn_fm = cmp_func(frame_1, frame_2)
-                    o.write(str(idx_1) +"\t" + str(idx_2) +"\t"+ str(knn_fm.score())+"\n")
-                    if knn_fm.score() > 100:
-                        knn_fm.save_img("result", "knn_" + str(idx_1)+"_"+str(idx_2))
+                    knn_fm.set_info(video_1, idx_1, video_2, idx_2)
+                    yield(knn_fm)
                 else:
                     break
-            break
         else:
             break
 
     cap_1.release()
     cap_2.release()
-    o.close()
 
 def compare_fm(frame_1, frame_2):
     sift = sift=cv2.xfeatures2d.SIFT_create()
@@ -70,7 +102,36 @@ def compare_fm(frame_1, frame_2):
 
     return KNN_FM(frame_1, kp1, frame_2, kp2, good)
 
+
+def camp(c, cv):
+    return "video/camp/" + c + "/" + cv
+
+def news(n, nv):
+    return "video/news/" + n + "/" + nv
+
+
 if __name__ == "__main__":
-    vtest_ysm = "video/test/test_ysm.mp4"
-    vtest_kbs = "video/test/test_kbs.mp4"
-    compare_video(vtest_ysm, vtest_kbs, compare_fm)
+    camp_list = ["ssj"]
+    news_list = ["sbs", "mbc", "kbs"]
+
+    err = open("error.txt", "w")
+    acc = open("acc.txt", "w")
+
+    for c in camp_list:
+        for cv in os.listdir("video/camp/" + c):
+            for n in news_list:
+                for nv in os.listdir("video/news/" + n):
+                    try:
+                        acc.write("\t".join([
+                            cv,
+                            nv,
+                        ]) + "\n")
+                        cmp_iter = compare_video(camp(c, cv), news(n, nv), compare_fm)
+                        save_cmp_log(cmp_iter)
+                    except:
+                        err.write("\t".join([
+                            cv,
+                            nv,
+                        ]) + "\n")
+    err.close()
+    acc.close()
