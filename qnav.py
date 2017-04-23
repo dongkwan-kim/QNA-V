@@ -62,7 +62,7 @@ def save_cmp_log(cmp_iter):
 
 
 def compare_video(video_1, video_2, cmp_func):
-    idx_1, idx_2 = 0, 0
+    idx_1, idx_2 = -1, -1
 
     cap_1 = cv2.VideoCapture(video_1)
     while(cap_1.isOpened()):
@@ -76,9 +76,10 @@ def compare_video(video_1, video_2, cmp_func):
                 ret_2, frame_2 = cap_2.read()
 
                 if ret_2:
-                    knn_fm = cmp_func(frame_1, frame_2)
-                    knn_fm.set_info(video_1, idx_1, video_2, idx_2)
-                    yield(knn_fm)
+                    if (idx_1 % 30) == 0 and (idx_2 % 30) == 0:
+                        knn_fm = cmp_func(frame_1, frame_2)
+                        knn_fm.set_info(video_1, idx_1, video_2, idx_2)
+                        yield(knn_fm)
                 else:
                     break
         else:
@@ -112,7 +113,7 @@ def news(n, nv):
 
 if __name__ == "__main__":
     camp_list = ["ssj"]
-    news_list = ["sbs", "mbc", "kbs"]
+    news_list = ["mbc", "sbs", "kbs"]
 
     err = open("error.txt", "w")
     acc = open("acc.txt", "w")
