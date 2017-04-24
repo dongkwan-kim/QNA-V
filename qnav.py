@@ -62,11 +62,12 @@ def save_cmp_log(cmp_iter):
 
 
 def compare_video(video_1, video_2, cmp_func):
-    idx_1, idx_2 = -1, -1
+    idx_1 = -1
 
     cap_1 = cv2.VideoCapture(video_1)
     while(cap_1.isOpened()):
         idx_1 += 1
+        idx_2 = 0
         ret_1, frame_1 = cap_1.read()
 
         if ret_1:
