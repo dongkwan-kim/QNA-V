@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import os
+import datetime
 
 
 class KNN_FM:
@@ -116,18 +117,24 @@ if __name__ == "__main__":
     camp_list = ["ssj"]
     news_list = ["mbc", "sbs", "kbs"]
 
-    err = open("error.txt", "w")
-    acc = open("acc.txt", "w")
+    now = str(datetime.datetime.now())
+    err = open("error_{}.txt".format(now), "w")
+    acc = open("access_{}.txt".format(now), "w")
 
     for c in camp_list:
         for cv in os.listdir("video/camp/" + c):
             for n in news_list:
                 for nv in os.listdir("video/news/" + n):
                     try:
-                        acc.write("\t".join([
+                        if cv.startswith(".") or nv.startswith("."):
+                            continue
+
+                        log = "\t".join([
                             cv,
                             nv,
-                        ]) + "\n")
+                        ]) + "\n"
+                        acc.write(log)
+                        print(log)
                         cmp_iter = compare_video(camp(c, cv), news(n, nv), compare_fm)
                         save_cmp_log(cmp_iter)
                     except:
