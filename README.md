@@ -7,7 +7,7 @@
 - Video clips which were uploaded by candidate's page (incl. camp's, party's, fan's) are friendly to itself. In case of presidential debate, they edited and posted clips in which their candidate won the opposing candidate logically. We can consider candidate's clips are positive-annotation of full video.
 - Also, news media can upload the clips with their own editions. Sometimes, some press gets criticized by making biased edits (not only video but also text and image) to certain candidates.
 
-![qnav-concept](https://raw.githubusercontent.com/todoaskit/QNA-V/master/img/qnav-concept.jpg)
+![qnav-concept](https://raw.githubusercontent.com/dongkwan-kim/QNA-V/master/img/qnav-concept.jpg)
 
 - QNA-V (Quotation Network Analysis -v Video) analyzes ratio of positive-annotated-clips of each candidate from all video files that news media uploaded. It can discover the political bias of news media.
 
